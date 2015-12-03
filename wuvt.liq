@@ -4,14 +4,14 @@ set("log.file.path", "/tmp/liquidsoap.log")
 set("log.stdout", true)
 
 # TODO: these should change depending on day and time slot
-radio = playlist(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/music.m3u")
-underwriting = playlist(mode="normal", reload=900, "/home/mutantmonkey/wuvt/automation/ua.m3u")
+radio = playlist.safe(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/music.m3u")
+underwriting = playlist.safe(mode="normal", reload=900, "/home/mutantmonkey/wuvt/automation/ua.m3u")
 
-station_id = playlist(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/id.m3u")
-psa = playlist(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/psa.m3u")
-soo = playlist(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/soo.m3u")
-liner = playlist(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/lnr.m3u")
-promo = playlist(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/pro.m3u")
+station_id = playlist.safe(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/id.m3u")
+psa = playlist.safe(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/psa.m3u")
+soo = playlist.safe(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/soo.m3u")
+liner = playlist.safe(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/lnr.m3u")
+promo = playlist.safe(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/pro.m3u")
 
 def xfade(a, b)
     add(normalize=false, [
