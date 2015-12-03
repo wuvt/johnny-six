@@ -5,7 +5,7 @@ set("log.stdout", true)
 
 # TODO: these should change depending on day and time slot
 radio = playlist.safe(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/music.m3u")
-underwriting = playlist.safe(mode="normal", reload=900, "/home/mutantmonkey/wuvt/automation/ua.m3u")
+underwriting = playlist(mode="normal", reload=900, "/home/mutantmonkey/wuvt/automation/ua.m3u")
 
 station_id = playlist.safe(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/id.m3u")
 psa = playlist.safe(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/psa.m3u")
