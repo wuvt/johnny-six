@@ -28,6 +28,21 @@ soo = audio_to_stereo(soo)
 liner = audio_to_stereo(liner)
 promo = audio_to_stereo(promo)
 
+def log_metadata(m) =
+    title = m["title"]
+    artist = m["artist"]
+    album = m["album"]
+    label = m["label"]
+
+    setenv("TRACK_TITLE", title)
+    setenv("TRACK_ARTIST", artist)
+    setenv("TRACK_ALBUM", album)
+    setenv("TRACK_LABEL", label)
+    system("trackman_log.py")
+end
+
+radio = on_metadata(log_metadata, radio)
+
 radio = random(weights=[5, 1], [radio, liner])
 station_id = switch([
     ({0h0m0s-0h59m0s}, soo),
@@ -45,13 +60,6 @@ radio = switch(transitions=[xfade, xfade], [
 ])
 
 radio = mksafe(radio)
-
-# TODO: ship metadata to site using an on_metadata thing
-# easiest way is probably to use an external script
-# see http://liquidsoap.fm/doc-svn/radiopi.html and http://liquidsoap.fm/doc-svn/dolebrai.html
-#on_metadata(fun (meta) ->
-#   use meta["artist"] etc.
-#, radio)
 
 output.pulseaudio(radio)
 
