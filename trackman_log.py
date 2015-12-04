@@ -1,14 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os
 import requests
 
 data = {
     'password': os.environ['TRACKMAN_PASSWORD'],
-    'album': os.environ.get('TRACK_ALBUM', ''),
-    'artist': os.environ.get('TRACK_ARTIST', ''),
-    'label': os.environ.get('TRACK_LABEL', ''),
-    'title': os.environ.get('TRACK_TITLE', ''),
+    'album': os.environb.get(b'TRACK_ALBUM', b'').decode('utf-8'),
+    'artist': os.environb.get(b'TRACK_ARTIST', b'').decode('utf-8'),
+    'label': os.environb.get(b'TRACK_LABEL', b'').decode('utf-8'),
+    'title': os.environb.get(b'TRACK_TITLE', b'').decode('utf-8'),
 }
 
 r = requests.post(os.environ['TRACKMAN_URL'], data=data)
