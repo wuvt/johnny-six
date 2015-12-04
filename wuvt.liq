@@ -108,7 +108,7 @@ radio = on_metadata(log_metadata, radio)
 
 radio = random(weights=[5, 1], [radio, liner])
 station_id = switch([
-    ({0h0m0s-0h59m0s}, soo),
+    ({0h0m0s-0h59m0s}, delay(3600., soo)),
     ({          true}, station_id),
 ])
 
