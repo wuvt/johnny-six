@@ -8,7 +8,8 @@ set("log.stdout", true)
 radio = playlist.safe(mode="randomize", reload=900, "/home/mutantmonkey/wuvt/automation/music.m3u")
 underwriting = playlist(mode="normal", reload=900, "/home/mutantmonkey/wuvt/automation/ua.m3u")
 
-radio = audio_to_stereo(radio)
+# convert radio and underwriting to stereo and eat silence at beginning and end
+radio = eat_blank(audio_to_stereo(radio))
 underwriting = eat_blank(audio_to_stereo(underwriting))
 
 def load_traffic(path) =
