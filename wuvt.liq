@@ -2,10 +2,11 @@
 
 %include "config.liq"
 
+backup = playlist(mode="randomize", "#{base_path}/playlists/default/backup.m3u")
+
 def load_playlist(name) =
     custom = playlist(mode="normal", "#{base_path}/playlists/#{name}.m3u")
     randomized = playlist(mode="randomize", "#{base_path}/playlists/default/#{name}.m3u")
-    backup = playlist(mode="randomize", "#{base_path}/playlists/default/backup.m3u")
     eat_blank(audio_to_stereo(fallback([custom, randomized, backup])))
 end
 
@@ -83,8 +84,8 @@ promo = load_traffic("#{base_path}/pro.m3u")
 
 def xfade(a, b)
     add(normalize=false, [
-        sequence([blank(duration=3.), fade.initial(duration=6., b)]),
-        fade.final(duration=6., a)
+        sequence([blank(duration=2.), fade.initial(duration=4., b)]),
+        fade.final(duration=4., a)
     ])
 end
 
