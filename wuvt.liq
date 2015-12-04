@@ -1,12 +1,11 @@
 # WUVT Automation
 
-set("log.file.path", "/tmp/liquidsoap.log")
-set("log.stdout", true)
+%include "config.liq"
 
 def load_playlist(name) =
-    custom = playlist(mode="normal", "/home/mutantmonkey/wuvt/automation/playlists/#{name}.m3u")
-    randomized = playlist(mode="randomize", "/home/mutantmonkey/wuvt/automation/playlists/default/#{name}.m3u")
-    backup = playlist(mode="randomize", "/home/mutantmonkey/wuvt/automation/playlists/default/backup.m3u")
+    custom = playlist(mode="normal", "#{base_path}/playlists/#{name}.m3u")
+    randomized = playlist(mode="randomize", "#{base_path}/playlists/default/#{name}.m3u")
+    backup = playlist(mode="randomize", "#{base_path}/playlists/default/backup.m3u")
     eat_blank(audio_to_stereo(fallback([custom, randomized, backup])))
 end
 
@@ -69,18 +68,18 @@ radio = switch([
 ])
 
 # TODO: need a script for this
-underwriting = playlist(mode="normal", reload=3600, "/home/mutantmonkey/wuvt/automation/ua.m3u")
+underwriting = playlist(mode="normal", reload=3600, "#{base_path}/ua.m3u")
 underwriting = eat_blank(audio_to_stereo(underwriting))
 
 def load_traffic(path) =
     eat_blank(audio_to_stereo(playlist.safe(mode="randomize", reload=3600, path)))
 end
 
-station_id = load_traffic("/home/mutantmonkey/wuvt/automation/id.m3u")
-psa = load_traffic("/home/mutantmonkey/wuvt/automation/psa.m3u")
-soo = load_traffic("/home/mutantmonkey/wuvt/automation/soo.m3u")
-liner = load_traffic("/home/mutantmonkey/wuvt/automation/lnr.m3u")
-promo = load_traffic("/home/mutantmonkey/wuvt/automation/pro.m3u")
+station_id = load_traffic("#{base_path}/id.m3u")
+psa = load_traffic("#{base_path}/psa.m3u")
+soo = load_traffic("#{base_path}/soo.m3u")
+liner = load_traffic("#{base_path}/lnr.m3u")
+promo = load_traffic("#{base_path}/pro.m3u")
 
 def xfade(a, b)
     add(normalize=false, [
