@@ -94,6 +94,8 @@ def log_metadata(m) =
     album = m["album"]
     label = m["label"]
 
+    setenv("TRACKMAN_URL", trackman_url)
+    setenv("TRACKMAN_PASSWORD", trackman_password)
     setenv("TRACK_TITLE", title)
     setenv("TRACK_ARTIST", artist)
     setenv("TRACK_ALBUM", album)
