@@ -71,7 +71,7 @@ radio = switch([
 # underwriting is queued by an external script
 # because underwriting depends on the hour, we need to ensure that it doesn't
 # queue something up ahead of time that will be for the wrong hour
-underwriting = eat_blank(audio_to_stereo(request.queue()))
+underwriting = eat_blank(audio_to_stereo(request.queue(id="underwriting")))
 
 def load_traffic(path) =
     eat_blank(audio_to_stereo(playlist.safe(mode="randomize", reload=3600, path)))
