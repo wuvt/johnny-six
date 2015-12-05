@@ -84,8 +84,8 @@ promo = load_traffic("#{base_path}/pro.m3u")
 
 def xfade(a, b)
     add(normalize=false, [
-        sequence([blank(duration=2.), fade.initial(duration=4., b)]),
-        fade.final(duration=4., a)
+        sequence([blank(duration=1.), fade.initial(duration=2., b)]),
+        fade.final(duration=2., a)
     ])
 end
 
