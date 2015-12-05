@@ -1,6 +1,9 @@
 set("log.file.path", "/tmp/liquidsoap.log")
 set("log.stdout", true)
 
+set("server.socket", true)
+set("server.socket.path", "/tmp/liquidsoap.sock")
+
 base_path = "/opt/wuvt/automation"
 trackman_url = "http://localhost:9090/trackman/api/automation/log"
 trackman_password = "hackme"

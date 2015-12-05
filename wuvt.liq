@@ -68,9 +68,10 @@ radio = switch([
     ({7w and 19h-23h59m59s}, load_playlist('EVE_SUN')),
 ])
 
-# TODO: need a script for this
-underwriting = playlist(mode="normal", reload=3600, "#{base_path}/ua.m3u")
-underwriting = eat_blank(audio_to_stereo(underwriting))
+# underwriting is queued by an external script
+# because underwriting depends on the hour, we need to ensure that it doesn't
+# queue something up ahead of time that will be for the wrong hour
+underwriting = eat_blank(audio_to_stereo(request.queue()))
 
 def load_traffic(path) =
     eat_blank(audio_to_stereo(playlist.safe(mode="randomize", reload=3600, path)))
