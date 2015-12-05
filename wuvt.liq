@@ -5,8 +5,8 @@
 backup = playlist.safe(mode="randomize", reload=86400, "#{base_path}/playlists/default/backup.m3u")
 
 def load_playlist(name) =
-    custom = playlist(mode="normal", "#{base_path}/playlists/#{name}.m3u")
-    randomized = playlist(mode="randomize", "#{base_path}/playlists/default/#{name}.m3u")
+    custom = playlist(mode="normal", reload=86400, "#{base_path}/playlists/#{name}.m3u")
+    randomized = playlist(mode="randomize", reload=86400, "#{base_path}/playlists/default/#{name}.m3u")
     eat_blank(audio_to_stereo(fallback([custom, randomized, backup])))
 end
 
