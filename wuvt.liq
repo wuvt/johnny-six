@@ -2,7 +2,7 @@
 
 %include "config.liq"
 
-backup = playlist.safe(mode="randomize", "#{base_path}/playlists/default/backup.m3u")
+backup = playlist.safe(mode="randomize", reload=86400, "#{base_path}/playlists/default/backup.m3u")
 
 def load_playlist(name) =
     custom = playlist(mode="normal", "#{base_path}/playlists/#{name}.m3u")
