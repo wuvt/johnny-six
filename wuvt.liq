@@ -105,7 +105,7 @@ def log_metadata(m) =
     system("trackman_log.py")
 end
 
-radio = on_metadata(log_metadata, radio)
+radio = on_track(log_metadata, radio)
 
 radio = random(weights=[5, 1], [radio, liner])
 station_id = switch([
