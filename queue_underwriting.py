@@ -2,38 +2,11 @@
 
 import datetime
 import socket
+import yaml
 
 socket_path = "/tmp/liquidsoap.sock"
-sponsors = {
-    # Monday
-    0: {
-    },
-
-    # Tuesday
-    1: {
-    },
-
-    # Wednesday
-    2: {
-    },
-
-    # Thursday
-    3: {
-    },
-
-    # Friday
-    4: {
-    },
-
-    # Saturday
-    5: {
-        0: "/home/mutantmonkey/wuvt/automation/ua/mm.wav",
-    },
-
-    # Sunday
-    6: {
-    },
-}
+sponsors = yaml.safe_load(
+    open('/home/mutantmonkey/wuvt/automation/underwriting.yml'))
 
 now = datetime.datetime.now()
 
