@@ -77,11 +77,11 @@ def load_traffic(path) =
     eat_blank(audio_to_stereo(playlist.safe(mode="randomize", reload=3600, path)))
 end
 
-station_id = load_traffic("#{base_path}/id.m3u")
-psa = load_traffic("#{base_path}/psa.m3u")
-soo = load_traffic("#{base_path}/soo.m3u")
-liner = load_traffic("#{base_path}/lnr.m3u")
-promo = load_traffic("#{base_path}/pro.m3u")
+station_id = load_traffic("#{base_path}/playlists/id.m3u")
+psa = load_traffic("#{base_path}/playlists/psa.m3u")
+soo = load_traffic("#{base_path}/playlists/soo.m3u")
+liner = load_traffic("#{base_path}/playlists/lnr.m3u")
+promo = load_traffic("#{base_path}/playlists/pro.m3u")
 
 def xfade(a, b)
     add(normalize=false, [
@@ -126,5 +126,4 @@ radio = switch(transitions=[xfade, xfade], [
 radio = mksafe(radio)
 
 output.pulseaudio(radio)
-
-# TODO: ALSA output to appropriate device (the DAC)
+#output.alsa(device="hw:1,0", radio)
