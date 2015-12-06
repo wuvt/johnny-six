@@ -5,9 +5,9 @@ import socket
 import yaml
 
 socket_path = "/tmp/liquidsoap.sock"
-sponsors = yaml.safe_load(
-    open('/home/mutantmonkey/wuvt/automation/underwriting.yml'))
+sponsors_path = '/tmp/wuvt/underwriting.yml'
 
+sponsors = yaml.safe_load(open(sponsors_path))
 now = datetime.datetime.now()
 
 if now.minute > 30:
