@@ -14,7 +14,8 @@ if now.minute > 30:
     # get underwriting for the next hour
     now += datetime.timedelta(hours=1)
 
-if now.hour in sponsors[now.weekday()]:
+if now.weekday() in sponsors and type(sponsors[now.weekday()]) == dict and \
+        now.hour in sponsors[now.weekday()]:
     sponsor = sponsors[now.weekday()][now.hour]
     cmd = "underwriting.push {}\n".format(sponsor).encode('utf-8')
 
