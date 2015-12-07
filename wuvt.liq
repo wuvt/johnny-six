@@ -116,10 +116,10 @@ station_id = switch([
 radio = switch(transitions=[xfade, xfade], [
     ({ 0m0s-28m0s}, delay(1800., station_id)),
     ({ 0m0s-14m0s}, delay(900., underwriting)),
-    ({14m0s-28m0s}, delay(900., psa)),
+    ({ 9m0s-21m0s}, delay(900., psa)),
     ({30m0s-44m0s}, delay(900., promo)),
     ({30m0s-44m0s}, delay(900., underwriting)),
-    ({44m0s-58m0s}, delay(900., psa)),
+    ({39m0s-51m0s}, delay(900., psa)),
     ({       true}, radio),
 ])
 
