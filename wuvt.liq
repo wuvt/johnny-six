@@ -106,15 +106,12 @@ def log_metadata(m) =
 end
 
 radio = on_track(log_metadata, radio)
-
 radio = random(weights=[5, 1], [radio, liner])
-station_id = switch([
-    ({0h0m0s-0h59m0s}, delay(3600., soo)),
-    ({          true}, station_id),
-])
 
 radio = switch(transitions=[xfade, xfade], [
-    ({ 0m0s-28m0s}, delay(1800., station_id)),
+    ({0h00m-00h59m and 0m-28m}, delay(1800., soo)),
+    ({0h59m-23h59m and 0m-28m}, delay(1800., station_id)),
+
     ({ 0m0s-14m0s}, delay(900., underwriting)),
     ({ 9m0s-21m0s}, delay(900., psa)),
     ({30m0s-44m0s}, delay(900., promo)),
@@ -126,4 +123,3 @@ radio = switch(transitions=[xfade, xfade], [
 radio = mksafe(radio)
 
 output.pulseaudio(radio)
-#output.alsa(device="hw:1,0", radio)
