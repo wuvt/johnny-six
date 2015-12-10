@@ -110,7 +110,7 @@ radio = random(weights=[5, 1], [radio, liner])
 
 radio = switch(transitions=[xfade, xfade], [
     ({0h00m-00h59m and 0m-28m}, delay(1800., soo)),
-    ({0h59m-23h59m and 0m-28m}, delay(1800., station_id)),
+    ({1h00m-23h59m and 0m-28m}, delay(1800., station_id)),
 
     ({ 0m0s-14m0s}, delay(900., underwriting)),
     ({ 9m0s-21m0s}, delay(900., psa)),
