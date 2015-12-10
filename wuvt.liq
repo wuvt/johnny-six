@@ -74,7 +74,7 @@ radio = switch([
 underwriting = eat_blank(audio_to_stereo(request.queue(id="underwriting")))
 
 def load_traffic(path) =
-    eat_blank(audio_to_stereo(playlist.safe(mode="randomize", reload=3600, path)))
+    eat_blank(audio_to_stereo(playlist.safe(mode="randomize", reload=14400, path)))
 end
 
 station_id = load_traffic("#{base_path}/playlists/id.m3u")
