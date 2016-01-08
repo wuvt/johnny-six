@@ -2,7 +2,7 @@
 
 %include "config.liq"
 
-backup = playlist(mode="randomize", reload=86400, "#{base_path}/playlists/default/backup.m3u")
+backup = mksafe(playlist(mode="randomize", reload=86400, "#{base_path}/playlists/default/backup.m3u"))
 
 def load_playlist(name) =
     custom = playlist(mode="normal", reload=86400, "#{base_path}/playlists/#{name}.m3u")
@@ -74,7 +74,7 @@ radio = switch([
 underwriting = eat_blank(audio_to_stereo(request.queue(id="underwriting")))
 
 def load_traffic(path) =
-    eat_blank(audio_to_stereo(playlist.safe(mode="randomize", reload=14400, path)))
+    eat_blank(audio_to_stereo(playlist(mode="randomize", reload=14400, path)))
 end
 
 station_id = load_traffic("#{base_path}/playlists/id.m3u")
