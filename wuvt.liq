@@ -83,13 +83,6 @@ soo = load_traffic("#{base_path}/playlists/soo.m3u")
 liner = load_traffic("#{base_path}/playlists/lnr.m3u")
 promo = load_traffic("#{base_path}/playlists/pro.m3u")
 
-def xfade(a, b)
-    add(normalize=false, [
-        sequence([blank(duration=1.), fade.initial(duration=2., b)]),
-        fade.final(duration=2., a)
-    ])
-end
-
 def log_metadata(m) =
     title = m["title"]
     artist = m["artist"]
@@ -106,9 +99,9 @@ def log_metadata(m) =
 end
 
 radio = on_track(log_metadata, radio)
-radio = random(weights=[5, 1], [radio, liner])
+radio = rotate(weights=[4, 1], [radio, liner])
 
-radio = switch(transitions=[xfade, xfade], [
+radio = switch([
     ({0h00m-00h59m and 0m-28m}, delay(1800., soo)),
     ({1h00m-23h59m and 0m-28m}, delay(1800., station_id)),
 
