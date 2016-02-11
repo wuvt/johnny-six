@@ -101,7 +101,12 @@ end
 radio = on_track(log_metadata, radio)
 radio = rotate(weights=[4, 1], [radio, liner])
 
+# add an additional queue for prerecorded shows that logs everything
+prerecorded = eat_blank(audio_to_stereo(request.queue(id="prerecorded")))
+prerecorded = on_track(log_metadata, prerecorded)
+
 radio = switch([
+    ({       true}, prerecorded),
     ({0h00m-00h59m and 0m-28m}, delay(1800., soo)),
     ({1h00m-23h59m and 0m-28m}, delay(1800., station_id)),
 
