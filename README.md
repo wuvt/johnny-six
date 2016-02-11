@@ -13,12 +13,12 @@ scheduled time:
 * Public service announcements played at the :15 and :45 (or within 6 minutes)
 * Promotional messages played at :30
 
-Liner tracks are also injected roughly every 5 songs; these are intended to
-remind the listener what station they are listening to and typically include
-the call sign or a slogan.
+Liner tracks are also injected every 5 songs; these are intended to remind the
+listener what station they are listening to and typically include the call sign
+or a slogan.
 
 ## License
-Copyright (c) 2015 mutantmonkey
+Copyright (c) 2015-2016 mutantmonkey
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
