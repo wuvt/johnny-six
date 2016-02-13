@@ -2,6 +2,8 @@ import os
 import urllib.parse
 from datetime import datetime
 
+import requests
+
 import config
 
 
@@ -16,20 +18,27 @@ class playlist():
         self.period = base[1].split('.')[0].lower()
         if self.period not in config.PERIOD_SCHED.keys():
             raise Exception("Filename period not valid.")
+        self.tracks = self.get_tracks()
 
     def validate(self):
-        """ No validation done here yet """
-        # Should validate tracks as well
-        pass
+        # Validate file information
+        # Remove invalid tracks
+        self.tracks = list(filter(lambda x: x.validate(), self.tracks))
+        # Check that there are enough tracks left to be valid
+        if len(self.tracks) == 0:
+            return False
+        return True
 
     def get_tracks(self):
+        tracks = []
         with open(self.filename, 'r') as f:
             for line in f.readlines():
                 if line[0] == '#':
                     continue
                 if line[-1] == '\n':
                     line = line[:-1]
-                yield track(line)
+                tracks.append(track(line))
+        return tracks
 
     def translate_filename(self):
         return "{0}-{1}.m3u".format(self.airdate.strftime("%a")[0:3],
@@ -37,8 +46,9 @@ class playlist():
 
     def translate(self, f):
         """ f is an open file to the destination """
-        for track in self.get_tracks():
-            f.write(track.translate() + '\n')
+        for track in self.tracks:
+            if track.validate():
+                f.write(track.translate() + '\n')
 
 class track():
     def __init__(self, path):
@@ -50,8 +60,15 @@ class track():
             return config.TRANSLATE_URL + urllib.parse.quote(basename.group(1))
         else:
             # A failure
-            pass
+            return None
 
     def validate(self):
         """ No validation done here yet """
-        pass
+        if self.translate() is not None:
+            try:
+                r = requests.head(self.translate(), timeout=0.01)
+                if r.status_code == requests.codes.ok:
+                    return True
+            except:
+                pass
+        return False

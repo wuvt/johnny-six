@@ -11,6 +11,8 @@ def find_playlists(directory):
     return filter(lambda x: x[-4:] == ".m3u", files)
 
 def main():
+    # Archive old playlists
+    # Move new playlists into place
     playlists = find_playlists(config.STAGING)
     for playlist_file in playlists:
         p = playlist.playlist(os.path.join(config.STAGING, playlist_file))
@@ -21,10 +23,15 @@ def main():
             continue
         with open(os.path.join(config.DEST, p.translate_filename()), "w+") as f:
             p.translate(f)
-        shutil.copyfile(p.filename,
-                        os.path.join(config.ARCHIVE, p.basename))
-        # Delete the old file
-        os.unlink(os.path.join(p.filename))
+        if p.validate():
+            shutil.copyfile(p.filename,
+                            os.path.join(config.ARCHIVE, p.basename))
+            # Delete the old file
+            os.unlink(os.path.join(p.filename))
+        else:
+            print("Playlist failed to validate")
+            # Error handling goes here
+            pass
 
 if __name__ == '__main__':
     main()
