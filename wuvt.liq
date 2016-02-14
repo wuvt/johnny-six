@@ -2,13 +2,39 @@
 
 %include "config.liq"
 
-backup = mksafe(playlist(mode="randomize", reload=86400, "#{base_path}/playlists/default/backup.m3u"))
+custom_reloaders = ref [("",fun(~uri="")->())]
+
+def reload_custom(name) =
+    def find_and_reload(x) =
+        if name == fst(x) then
+            reloader = snd(x)
+            reloader()
+        end
+    end
+
+    list.iter(find_and_reload, !custom_reloaders)
+    "Done"
+end
+server.register(description="Reload the specified custom playlist.",
+                usage="reload_custom <name>", "reload_custom", reload_custom)
 
 def load_playlist(name) =
-    custom = playlist.once("#{base_path}/playlists/active/#{name}.m3u")
-    randomized = playlist(mode="randomize", reload=86400, "#{base_path}/playlists/default/#{name}.m3u")
-    eat_blank(audio_to_stereo(fallback([custom, randomized, backup])))
+    s = playlist.reloadable(id="custom_#{name}",
+                            "#{base_path}/playlists/active/#{name}.m3u")
+    custom_reloaders := list.add((name, fst(s)), !custom_reloaders)
+    custom = snd(s)
+
+    default = playlist(id="default_#{name}", mode="randomize", reload=86400,
+                       "#{base_path}/playlists/default/#{name}.m3u")
+    eat_blank(audio_to_stereo(fallback([custom, default])))
 end
+
+# The backup playlist will be used if both a custom playlist and the default
+# playlist are not available. We don't use playlist.safe because that only
+# works with local files; instead we rely on the audio silence alarm if things
+# are really broken.
+backup = mksafe(playlist(id="backup", mode="randomize", reload=86400,
+                         "#{base_path}/playlists/default/backup.m3u"))
 
 radio = switch([
     # Monday
@@ -66,6 +92,8 @@ radio = switch([
     ({7w and 14h-16h59m59s}, load_playlist('Sun-1400')),
     ({7w and 17h-18h59m59s}, load_playlist('Sun-1700')),
     ({7w and 19h-23h59m59s}, load_playlist('Sun-1900')),
+
+    ({                true}, eat_blank(audio_to_stereo(backup))),
 ])
 
 # underwriting is queued by an external script
@@ -73,15 +101,15 @@ radio = switch([
 # queue something up ahead of time that will be for the wrong hour
 underwriting = eat_blank(audio_to_stereo(request.queue(id="underwriting")))
 
-def load_traffic(path) =
-    eat_blank(audio_to_stereo(playlist(mode="randomize", reload=14400, path)))
+def load_traffic(~id="", path) =
+    eat_blank(audio_to_stereo(playlist(id=id, mode="randomize", reload=14400, path)))
 end
 
-station_id = load_traffic("#{base_path}/playlists/id.m3u")
-psa = load_traffic("#{base_path}/playlists/psa.m3u")
-soo = load_traffic("#{base_path}/playlists/soo.m3u")
-liner = load_traffic("#{base_path}/playlists/lnr.m3u")
-promo = load_traffic("#{base_path}/playlists/pro.m3u")
+station_id = load_traffic(id="id", "#{base_path}/playlists/id.m3u")
+psa = load_traffic(id="psa", "#{base_path}/playlists/psa.m3u")
+soo = load_traffic(id="soo", "#{base_path}/playlists/soo.m3u")
+liner = load_traffic(id="lnr", "#{base_path}/playlists/lnr.m3u")
+promo = load_traffic(id="pro", "#{base_path}/playlists/pro.m3u")
 
 def log_metadata(m) =
     title = m["title"]
@@ -107,6 +135,7 @@ prerecorded = on_track(log_metadata, prerecorded)
 
 radio = switch([
     ({       true}, prerecorded),
+
     ({0h00m-00h59m and 0m-28m}, delay(1800., soo)),
     ({1h00m-23h59m and 0m-28m}, delay(1800., station_id)),
 
