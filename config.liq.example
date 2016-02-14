@@ -5,5 +5,6 @@ set("server.socket", true)
 set("server.socket.path", "/tmp/liquidsoap.sock")
 
 base_path = "/opt/wuvt/automation"
+script_path = "/opt/johnny-six"
 trackman_url = "http://localhost:9090/trackman/api/automation/log"
 trackman_password = "hackme"
