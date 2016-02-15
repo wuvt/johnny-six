@@ -13,7 +13,7 @@ def reload_custom(name) =
     end
 
     list.iter(find_and_reload, !custom_reloaders)
-    "Done"
+    "OK"
 end
 server.register(description="Reload the specified custom playlist.",
                 usage="reload_custom <name>", "reload_custom", reload_custom)
