@@ -48,7 +48,10 @@ def main():
     # Move new playlists into place
     playlists = find_playlists(config.STAGING)
     for playlist_file in playlists:
-        p = playlist.playlist(os.path.join(config.STAGING, playlist_file))
+        try:
+            p = playlist.playlist(os.path.join(config.STAGING, playlist_file))
+        except:
+            continue
         if p.airdate < datetime.datetime.now():
             # I should probably delete this
             continue
