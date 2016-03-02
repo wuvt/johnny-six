@@ -4,12 +4,12 @@ import re
 TRANSLATE_URL = "http://192.168.0.55/automation/"
 BASENAME_PATTERN = re.compile(r'.*automation/(.+)$')
 PERIOD_SCHED = {
-        "overnight": "0000",
+        "early": "0000",
         "morning": "0600",
-        "midday": "0900",
+        "noon": "0900",
         "afternoon": "1400",
         "jazz": "1700",
-        "evening": "1900",
+        "night": "1900",
         }
 
 STAGING = "./playlist-loader/test"
