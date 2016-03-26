@@ -130,6 +130,7 @@ def log_metadata(m) =
 end
 
 radio = on_track(log_metadata, radio)
+radio = smart_crossfade(radio)
 radio = rotate(weights=[4, 1], [radio, liner])
 
 # add an additional queue for prerecorded shows that logs everything
