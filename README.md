@@ -17,6 +17,12 @@ Liner tracks are also injected every 5 songs; these are intended to remind the
 listener what station they are listening to and typically include the call sign
 or a slogan.
 
+## Configuration Notes
+You should never use NFS or other types of remote filesystems. Liquidsoap has
+support for HTTP, HTTPS, and FTP for all types of sources, so if you need
+network support, use one of those instead. For more information, refer to the
+[Liquidsoap documentation](http://liquidsoap.fm/doc-svn/sources.html).
+
 ## License
 Copyright (c) 2015-2016 mutantmonkey
 
