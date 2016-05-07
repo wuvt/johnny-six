@@ -123,7 +123,7 @@ def log_metadata(m) =
     setenv("TRACK_ARTIST", artist)
     setenv("TRACK_ALBUM", album)
     setenv("TRACK_LABEL", label)
-    system("#{script_path}/trackman_log.py &")
+    system("#{script_path}/trackman_log.py")
 end
 
 radio = on_track(log_metadata, radio)
