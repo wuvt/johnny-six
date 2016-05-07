@@ -112,21 +112,18 @@ liner = load_traffic(id="lnr", "#{base_path}/playlists/lnr.m3u")
 promo = load_traffic(id="pro", "#{base_path}/playlists/pro.m3u")
 
 def log_metadata(m) =
-    password = url.encode(trackman_password)
-    title = url.encode(m["title"])
-    artist = url.encode(m["artist"])
-    album = url.encode(m["album"])
-    label = url.encode(m["label"])
+    title = m["title"]
+    artist = m["artist"]
+    album = m["album"]
+    label = m["label"]
 
-    server = http.post(data="password=#{password}&title=#{title}&artist=#{artist}&album=#{album}&label=#{label}",
-                       headers=[("Content-Type", "application/x-www-form-urlencoded")],
-                       trackman_url)
-    http_status = snd(fst(fst(fst(server))))
-    if http_status == 200 then
-        log("Track logged successfully")
-    else
-        log("Failed to log track")
-    end
+    setenv("TRACKMAN_URL", trackman_url)
+    setenv("TRACKMAN_PASSWORD", trackman_password)
+    setenv("TRACK_TITLE", title)
+    setenv("TRACK_ARTIST", artist)
+    setenv("TRACK_ALBUM", album)
+    setenv("TRACK_LABEL", label)
+    system("#{script_path}/trackman_log.py")
 end
 
 radio = on_track(log_metadata, radio)
