@@ -7,6 +7,7 @@ set("server.socket.path", "/tmp/liquidsoap.sock")
 set("scheduler.fast_queues", 1)
 set("scheduler.generic_queues", 6)
 
+script_path = "/opt/johnny-six"
 base_path = "/opt/wuvt/automation"
 trackman_url = "http://localhost:9090/trackman/api/automation/log"
 trackman_password = "hackme"

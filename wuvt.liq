@@ -22,21 +22,16 @@ def load_playlist(name) =
     s = playlist.reloadable(id="custom_#{name}",
                             "#{base_path}/playlists/active/#{name}.m3u")
     custom_reloaders := list.add((name, fst(s)), !custom_reloaders)
-    custom = snd(s)
-
-    default = playlist(id="default_#{name}", mode="randomize", reload=86400,
-                       "#{base_path}/playlists/default/#{name}.m3u")
-    eat_blank(audio_to_stereo(fallback([custom, default])))
+    eat_blank(audio_to_stereo(snd(s)))
 end
 
-# The backup playlist will be used if both a custom playlist and the default
-# playlist are not available. We don't use playlist.safe because that only
-# works with local files; instead we rely on the audio silence alarm if things
-# are really broken.
-backup = mksafe(playlist(id="backup", mode="randomize", reload=86400,
-                         "#{base_path}/playlists/default/backup.m3u"))
+def dynamic_request() =
+    result = list.hd(get_process_lines(
+        "python #{script_path}/get_track.py #{base_path}"))
+    request.create(result)
+end
 
-radio = switch([
+radio = switch(id="normal", [
     # Monday
     ({1w and  0h- 5h59m59s}, load_playlist('Mon-0000')),
     ({1w and  6h- 8h59m59s}, load_playlist('Mon-0600')),
@@ -93,7 +88,9 @@ radio = switch([
     ({7w and 17h-18h59m59s}, load_playlist('Sun-1700')),
     ({7w and 19h-23h59m59s}, load_playlist('Sun-1900')),
 
-    ({                true}, eat_blank(audio_to_stereo(backup))),
+    ({                 true},
+        eat_blank(audio_to_stereo(request.dynamic(id="dynamic",
+                                                  dynamic_request)))),
 ])
 
 # underwriting is queued by an external script
@@ -112,6 +109,8 @@ liner = load_traffic(id="lnr", "#{base_path}/playlists/lnr.m3u")
 promo = load_traffic(id="pro", "#{base_path}/playlists/pro.m3u")
 
 def log_metadata(m) =
+    log("Artist=#{m['artist']} Title=#{m['title']} Album=#{m['album']} Label=#{m['label']}")
+
     password = url.encode(trackman_password)
     title = url.encode(m["title"])
     artist = url.encode(m["artist"])
@@ -119,7 +118,8 @@ def log_metadata(m) =
     label = url.encode(m["label"])
 
     server = http.post(data="password=#{password}&title=#{title}&artist=#{artist}&album=#{album}&label=#{label}",
-                       headers=[("Content-Type", "application/x-www-form-urlencoded")],
+                       headers=[("Content-Type", "application/x-www-form-urlencoded"),
+                                ("X-Requested-With", "johnny-six")],
                        trackman_url)
     http_status = snd(fst(fst(fst(server))))
     if http_status == 200 then
