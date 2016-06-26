@@ -27,7 +27,7 @@ end
 
 def dynamic_request() =
     result = list.hd(get_process_lines(
-        "python #{script_path}/get_track.py #{base_path}"))
+        "python3 #{script_path}/get_track.py #{base_path}"))
     request.create(result)
 end
 
