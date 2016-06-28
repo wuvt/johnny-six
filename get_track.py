@@ -5,6 +5,7 @@ import datetime
 import os.path
 import random
 import requests
+import sys
 
 parser = argparse.ArgumentParser(
     description="Pick a track for automation to play.")
@@ -42,4 +43,5 @@ else:
     r = requests.get(path)
     lines = r.text.splitlines()
 
-print(random.choice(lines))
+# always send output to liquidsoap as UTF-8, regardless of terminal encoding
+sys.stdout.buffer.write(random.choice(lines).encode('utf-8'))
