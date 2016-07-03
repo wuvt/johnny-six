@@ -2,7 +2,7 @@
 
 import argparse
 import datetime
-import os.path
+import os
 import random
 import requests
 import sys
@@ -33,15 +33,22 @@ else:
 playlist = now.strftime("%a-%H%M")
 path = os.path.join(args.base_path,
                     'playlists/default/{}.m3u'.format(playlist))
-if not os.path.exists(path):
-    path = os.path.join(args.base_path, 'playlists/default/backup.m3u')
 
 if path[0] == '/':
+    if not os.path.exists(path):
+        path = os.path.join(args.base_path, 'playlists/default/backup.m3u')
     with open(path) as f:
         lines = f.read().splitlines()
 else:
     r = requests.get(path)
-    lines = r.text.splitlines()
+    if r.status_code != 200:
+        path = os.path.join(args.base_path, 'playlists/default/backup.m3u')
+        r = requests.get(path)
+
+    if r.status_code == 200:
+        lines = r.text.splitlines()
+    else:
+        raise FileNotFoundError(path)
 
 # always send output to liquidsoap as UTF-8, regardless of terminal encoding
-sys.stdout.buffer.write(random.choice(lines).encode('utf-8'))
+sys.stdout.buffer.write(random.choice(lines).encode('utf-8') + b'\n')
