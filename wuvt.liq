@@ -144,7 +144,7 @@ radio = switch([
 
     ({ 0m0s-14m0s}, delay(900., underwriting)),
     ({ 9m0s-21m0s}, delay(900., psa)),
-    ({30m0s-44m0s}, delay(900., promo)),
+    ({30m0s-44m0s}, delay(4500., promo)),
     ({30m0s-44m0s}, delay(900., underwriting)),
     ({39m0s-51m0s}, delay(900., psa)),
     ({       true}, radio),
