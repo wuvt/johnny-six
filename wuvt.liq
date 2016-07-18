@@ -122,7 +122,7 @@ def log_metadata(m) =
                                 ("X-Requested-With", "johnny-six")],
                        trackman_url)
     http_status = snd(fst(fst(fst(server))))
-    if http_status == 200 then
+    if http_status == 201 then
         log("Track logged successfully")
     else
         log("Failed to log track")
