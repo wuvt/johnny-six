@@ -28,7 +28,11 @@ elif now.hour < 17:
 elif now.hour < 19:
     now = now.replace(hour=17, minute=0)
 else:
-    now = now.replace(hour=19, minute=0)
+    # special case for Wednesday: local zone until 21
+    if now.isoweekday() == 3 and now.hour >= 21:
+        now = now.replace(hour=21, minute=0)
+    else:
+        now = now.replace(hour=19, minute=0)
 
 playlist = now.strftime("%a-%H%M")
 path = os.path.join(args.base_path,
