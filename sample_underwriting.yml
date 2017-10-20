@@ -1,29 +1,28 @@
 ---
 # sample underwriting format
-- sponsor: nrv mall
-  underwriting:
-          - name: back to school
-            startdate: 2017-07-03
-            enddate: 2017-08-20
-            transcript: --- >
-                    I'm going to put a sample fake transcript into this for
-                    fun because it could be useful
-            url:
-                    - https://example.com/underwiting/today.mp3
-                    - https://example.com/underwiting/tomorrow.flac
-            schedule:
-                    monday: [0,1,2,3,4,5]
-                    tuesday: [0,3,4,23,8]
-          - name: end of world
-            startdate: 2012-01-01
-            enddate: 2018-03-04
-            url: [ /underwriting/the_day_after.ogg, /dev/urandom ]
-            schedule: { monday: [ 0, 3, 5 ], friday: [ 10, 21, 22, 23 ] }
-- sponsor: gillies
-  underwriting:
-          - name: vegetarian food
-            startdate: 2002-01-01
-            enddate: 2038-01-23
-            url: [ https://subdomain.example.com/underwriting/the_day_after.ogg ]
-            schedule:
-                    thursday: [ 21, 22, 23 ]
+- name: back to school
+  startdate: 2017-07-03
+  enddate: 2017-08-20
+  sponsor: nrv mall
+  transcript: --- >
+    I'm going to put a sample fake transcript into this for
+    fun because it could be useful
+  url:
+  - 'https://example.com/underwiting/today.mp3'
+  - 'https://example.com/underwiting/tomorrow.flac'
+  schedule:
+    monday: [0,1,2,3,4,5]
+    tuesday: [0,3,4,23,8]
+- name: end of world
+  startdate: 2012-01-01
+  enddate: 2018-03-04
+  sponsor: nrv mall
+  url: [ /underwriting/the_day_after.ogg, /dev/urandom ]
+  schedule: { monday: [ 0, 3, 5 ], friday: [ 10, 21, 22, 23 ] }
+- name: vegetarian food
+  startdate: 2002-01-01
+  enddate: 2038-01-23
+  sponsor: gillies
+  url: [ 'https://subdomain.example.com/underwriting/the_day_after.ogg' ]
+  schedule:
+    thursday: [ 21, 22, 23 ]
