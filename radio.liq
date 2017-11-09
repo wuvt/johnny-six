@@ -26,9 +26,9 @@ def load_playlist(name) =
 end
 
 def dynamic_request() =
-    result = list.hd(get_process_lines(
+    result = list.hd(default="", get_process_lines(
         "python3 #{script_path}/get_track.py #{base_path}"))
-    request.create(string_of(result))
+    request.create(result)
 end
 
 radio = switch(id="normal", [
