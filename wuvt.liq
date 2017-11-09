@@ -1,6 +1,6 @@
 # WUVT Automation
 
-set("log.file.path", "/dev/null")
+set("log.file", false)
 set("log.stdout", true)
 
 set("server.socket", true)
