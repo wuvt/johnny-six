@@ -50,13 +50,14 @@ class playlist():
             if track.validate():
                 f.write(track.translate() + '\n')
 
+
 class track():
     def __init__(self, path):
         self.path = path
 
     def translate(self):
         basename = config.BASENAME_PATTERN.match(self.path)
-        if basename != None:
+        if basename is not None:
             return config.TRANSLATE_URL + urllib.parse.quote(basename.group(1))
         else:
             # A failure
