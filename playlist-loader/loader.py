@@ -15,9 +15,16 @@ def find_playlists(directory):
 
 def update_playlist(playlist_file):
     name = playlist_file[:-4]
-    liq_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    liq_sock.settimeout(60.0)
-    liq_sock.connect(config.LIQUIDSOAP_SOCK)
+
+    try:
+        liq_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        liq_sock.settimeout(60.0)
+        liq_sock.connect((config.LIQUIDSOAP_HOST, config.LIQUIDSOAP_PORT))
+    except AttributeError:
+        liq_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        liq_sock.settimeout(60.0)
+        liq_sock.connect(config.LIQUIDSOAP_SOCK)
+
     liq_sock.sendall("reload_custom {0}\r\n".format(name).encode("utf-8"))
     rec = liq_sock.recv(256)
     if "END" not in rec.decode("utf-8"):

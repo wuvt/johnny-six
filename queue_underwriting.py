@@ -8,7 +8,8 @@ import random
 import sys
 
 underwritingSchedule = '/tmp/sample.yml'
-socketPath = "/tmp/liquidsoap.sock"
+telnetHost = '172.17.0.2'
+telnetPort = 1234
 
 underwriters = yaml.safe_load(open(underwritingSchedule))
 thisHour = []
@@ -16,11 +17,11 @@ thisHour = []
 
 def push_command(url):
     cmd = "underwriting.push {}\n".format(url).encode('utf-8')
-    sock = socket.socket(socket.AF_UNIX)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        sock.connect(socketPath)
-    except FileNotFoundError:
-        print("Cannot push to socket: does not exist")
+        sock.connect((telnetHost, telnetPort))
+    except OSError as e:
+        print("Cannot push to socket: {0}".format(e))
         return False
     # queue the first one immediately
     sock.send(cmd)
