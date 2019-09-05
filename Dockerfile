@@ -1,4 +1,4 @@
-FROM quay.io/wuvt/liquidsoap:latest
+FROM wuvt/liquidsoap:latest
 
 USER root
 
