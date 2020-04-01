@@ -2,28 +2,6 @@
 
 %include "config.liq"
 
-custom_reloaders = ref [("",fun(~uri="")->())]
-
-def reload_custom(name) =
-    def find_and_reload(x) =
-        if name == fst(x) then
-            reloader = snd(x)
-            reloader()
-        end
-    end
-
-    list.iter(find_and_reload, !custom_reloaders)
-    "OK"
-end
-server.register(description="Reload the specified custom playlist.",
-                usage="reload_custom <name>", "reload_custom", reload_custom)
-
-def load_playlist(name) =
-    s = playlist.reloadable(id="custom_#{name}",
-                            "#{base_path}/playlists/active/#{name}.m3u")
-    custom_reloaders := list.add((name, fst(s)), !custom_reloaders)
-    eat_blank(audio_to_stereo(snd(s)))
-end
 
 def underwriting_request() =
     result = list.hd(default="", get_process_lines(
