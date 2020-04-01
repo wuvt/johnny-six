@@ -64,7 +64,7 @@ def log_metadata(m) =
     album = url.encode(m["album"])
     label = url.encode(m["label"])
 
-    server = http.post(data="password=#{password}&title=#{title}&artist=#{artist}&album=#{album}&label=#{label}",
+    server = http.post(data="password=#{password}&title=#{title}&artist=#{artist}&album=#{album}&label=#{label",
                        headers=[("Content-Type", "application/x-www-form-urlencoded"),
                                 ("X-Requested-With", "johnny-six")],
                        trackman_url)
@@ -87,6 +87,19 @@ radio = rotate(weights=[4, 1], [radio, liner])
 prerecorded = eat_blank(audio_to_stereo(request.queue(id="prerecorded")))
 prerecorded = on_track(log_metadata, prerecorded)
 
+# add a harbor input for remote live streams
+def remote_live_auth(user, password) =
+    ret = get_process_lines("python3 #{script_path}/check_auth.py --user=#{user} --password=#{password}")
+    result = list.hd(default="", ret)
+    if result == "true" then
+        true
+    else
+        false
+    end
+end
+
+remote_live = input.harbor.ssl("remote-live", port=8005, auth=remote_live_auth)
+
 radio = switch([
     ({       true}, prerecorded),
 
@@ -101,4 +114,8 @@ radio = switch([
     ({       true}, radio),
 ])
 
-radio = mksafe(radio)
+radio = fallback(track_sensitive=false, [
+    remote_live,
+    radio,
+    blank(id="safe_blank"),
+])
