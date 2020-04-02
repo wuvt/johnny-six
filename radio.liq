@@ -113,7 +113,7 @@ def remote_live_auth(user, password) =
     end
 end
 
-remote_live = input.harbor.ssl("remote-live", port=8005, auth=remote_live_auth)
+remote_live = input.harbor.ssl("remote_live", port=8005, auth=remote_live_auth)
 
 radio = switch([
     ({       true}, prerecorded),
