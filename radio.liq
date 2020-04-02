@@ -41,17 +41,38 @@ promo = load_traffic(id="pro", "#{base_path}/playlists/pro.m3u")
 def log_metadata(m) =
     log("Artist=#{m['artist']} Title=#{m['title']} Album=#{m['album']} Label=#{m['label']}")
 
-    password = url.encode(trackman_password)
-    title = url.encode(m["title"])
-    artist = url.encode(m["artist"])
-    album = url.encode(m["album"])
-    label = url.encode(m["label"])
+    params = [
+        ("password", trackman_password),
+        ("artist", m['artist']),
+        ("title", m['title']),
+        ("album", m['album']),
+        ("label", m['label']),
+    ]
 
-    server = http.post(data="password=#{password}&title=#{title}&artist=#{artist}&album=#{album}&label=#{label",
-                       headers=[("Content-Type", "application/x-www-form-urlencoded"),
-                                ("X-Requested-With", "johnny-six")],
-                       trackman_url)
-    http_status = snd(fst(fst(fst(server))))
+    def encode_param(p) =
+        let (k, v) = p
+        y = url.encode(v)
+        "#{k}=#{y}"
+    end
+    params = string.concat(separator="&", list.map(encode_param, params))
+    request_headers = [("Content-Type", "application/x-www-form-urlencoded"),
+                       ("X-Requested-With", "johnny-six")]
+
+    http_status =
+        if string.contains(prefix="https", trackman_url) then
+            let ((_,http_status,_),_,_) = https.post(
+                data=params,
+                headers=request_headers,
+                trackman_url)
+            http_status
+        else
+            let ((_,http_status,_),_,_) = http.post(
+                data=params,
+                headers=request_headers,
+                trackman_url)
+            http_status
+        end
+
     if http_status == 201 then
         log("Track logged successfully")
     else
