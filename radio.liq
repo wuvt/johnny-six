@@ -2,16 +2,23 @@
 
 %include "config.liq"
 
-
 def underwriting_request() =
     result = list.hd(default="", get_process_lines(
         "curl -sL #{playlist_api_url}/underwriting"))
+    if result == "" then
+        log("Failed to fetch underwriting from API, delaying subsequent requests...")
+        system("sleep 900")
+    end
     request.create(result)
 end
 
 def next_track_request() =
     result = list.hd(default="", get_process_lines(
         "curl -sL #{playlist_api_url}/next_track"))
+    if result == "" then
+        log("Failed to fetch next track from API, delaying subsequent requests...")
+        system("sleep 2")
+    end
     request.create(result)
 end
 
@@ -20,8 +27,6 @@ def next_track_local_request() =
         "python3 #{script_path}/get_track.py #{base_path}"))
     request.create(result)
 end
-
-underwriting = eat_blank(audio_to_stereo(request.dynamic(id="underwriting", underwriting_request)))
 
 def load_traffic(~id="", path) =
     eat_blank(audio_to_stereo(playlist(id=id, mode="randomize", reload=14400, path)))
@@ -54,8 +59,19 @@ def log_metadata(m) =
     end
 end
 
-tracks_api = request.dynamic(id="tracks", next_track_request)
 tracks_local = request.dynamic(id="tracks_local", next_track_local_request)
+
+underwriting = if playlist_api_url != "" then
+    eat_blank(audio_to_stereo(request.dynamic(id="underwriting", underwriting_request)))
+else
+    empty(id="underwriting")
+end
+
+tracks_api = if playlist_api_url != "" then
+    request.dynamic(id="tracks", next_track_request)
+else
+    empty(id="tracks")
+end
 
 radio = eat_blank(audio_to_stereo(fallback([tracks_api, tracks_local])))
 radio = on_track(log_metadata, radio)
