@@ -28,6 +28,16 @@ def next_track_local_request() =
     request.create(result)
 end
 
+def prerecorded_request() =
+    result = list.hd(default="", get_process_lines(
+        "curl -sL #{playlist_api_url}/next_track?prerecorded=1"))
+    if result == "" then
+        log("Failed to fetch next prerecorded track from API, delaying subsequent requests...")
+        system("sleep 2")
+    end
+    request.create(result)
+end
+
 def load_traffic(~id="", path) =
     eat_blank(audio_to_stereo(playlist(id=id, mode="randomize", reload=14400, path)))
 end
@@ -80,29 +90,39 @@ def log_metadata(m) =
     end
 end
 
-tracks_local = request.dynamic(id="tracks_local", next_track_local_request)
-
+# create underwriting queue - if API is disabled, just leave it empty
 underwriting = if playlist_api_url != "" then
     eat_blank(audio_to_stereo(request.dynamic(id="underwriting", underwriting_request)))
 else
     empty(id="underwriting")
 end
 
-tracks_api = if playlist_api_url != "" then
-    request.dynamic(id="tracks", next_track_request)
+# build up the track queues; provide a local one and one that uses the API
+tracks_local = request.dynamic(id="tracks_local", next_track_local_request)
+tracks = if playlist_api_url != "" then
+    fallback([request.dynamic(id="tracks", next_track_request), tracks_local])
 else
-    empty(id="tracks")
+    tracks_local
 end
 
-radio = eat_blank(audio_to_stereo(fallback([tracks_api, tracks_local])))
+# convert tracks to stereo, strip silence at beginning and ends of tracks, log
+# metadata on track change, and add liner every 4 tracks
+radio = eat_blank(audio_to_stereo(tracks))
 radio = on_track(log_metadata, radio)
 radio = rotate(weights=[4, 1], [radio, liner])
 
 # add an additional queue for prerecorded shows that logs everything
-prerecorded = eat_blank(audio_to_stereo(request.queue(id="prerecorded")))
+prerecorded = if playlist_api_url != "" then
+    audio_to_stereo(fallback([
+        request.dynamic(id="prerecorded_api", prerecorded_request),
+        request.queue(id="prerecorded")
+    ]))
+else
+    request.queue(id="prerecorded")
+end
 prerecorded = on_track(log_metadata, prerecorded)
 
-# add a harbor input for remote live streams
+# use external script for remote live stream auth
 def remote_live_auth(user, password) =
     ret = get_process_lines("python3 #{script_path}/check_auth.py --user=#{user} --password=#{password}")
     result = list.hd(default="", ret)
@@ -115,9 +135,12 @@ end
 
 remote_live = input.harbor.ssl("remote_live", port=8005, auth=remote_live_auth)
 
-radio = switch([
-    ({       true}, prerecorded),
+# add a harbor input for remote live streams
+remote_live = input.harbor.ssl(id="remote_live", auth=remote_live_auth, replay_metadata=true, "remote-live")
 
+# "johnny switch" provides our standard automation setup with automatic station
+# IDs, PSAs, etc. at set times
+radio = switch(id="johnny_switch", [
     ({0h00m-00h59m and 0m-28m}, delay(1800., soo)),
     ({1h00m-23h59m and 0m-28m}, delay(1800., station_id)),
 
@@ -129,8 +152,10 @@ radio = switch([
     ({       true}, radio),
 ])
 
-radio = fallback(track_sensitive=false, [
+# fallback to different inputs in order
+radio = fallback(id="primary_input_fallback", track_sensitive=false, [
     remote_live,
+    prerecorded,
     radio,
     blank(id="safe_blank"),
 ])
