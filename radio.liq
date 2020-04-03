@@ -49,7 +49,9 @@ liner = load_traffic(id="lnr", "#{base_path}/playlists/lnr.m3u")
 promo = load_traffic(id="pro", "#{base_path}/playlists/pro.m3u")
 
 def log_metadata(m) =
-    log("Artist=#{m['artist']} Title=#{m['title']} Album=#{m['album']} Label=#{m['label']} DJ=#{m['trackman_dj_id']}")
+    log(
+        label="log_metadata",
+        "Artist=#{m['artist']} Title=#{m['title']} Album=#{m['album']} Label=#{m['label']} DJ=#{m['trackman_dj_id']}")
 
     params = [
         ("password", trackman_password),
@@ -85,9 +87,9 @@ def log_metadata(m) =
         end
 
     if http_status == 201 then
-        log("Track logged successfully")
+        log(label="log_metadata", "Track logged successfully")
     else
-        log("Failed to log track")
+        log(label="log_metadata",  "Failed to log track")
     end
 end
 
