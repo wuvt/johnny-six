@@ -49,7 +49,7 @@ liner = load_traffic(id="lnr", "#{base_path}/playlists/lnr.m3u")
 promo = load_traffic(id="pro", "#{base_path}/playlists/pro.m3u")
 
 def log_metadata(m) =
-    log("Artist=#{m['artist']} Title=#{m['title']} Album=#{m['album']} Label=#{m['label']}")
+    log("Artist=#{m['artist']} Title=#{m['title']} Album=#{m['album']} Label=#{m['label']} DJ=#{m['trackman_dj_id']}")
 
     params = [
         ("password", trackman_password),
@@ -57,6 +57,7 @@ def log_metadata(m) =
         ("title", m['title']),
         ("album", m['album']),
         ("label", m['label']),
+        ("dj_id", m['trackman_dj_id']),
     ]
 
     def encode_param(p) =
