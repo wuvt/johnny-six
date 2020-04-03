@@ -116,13 +116,14 @@ radio = rotate(weights=[4, 1], [radio, liner])
 
 # add an additional queue for prerecorded shows that logs everything
 prerecorded = if playlist_api_url != "" then
-    audio_to_stereo(fallback([
+    fallback([
         request.dynamic(id="prerecorded_api", prerecorded_request),
         request.queue(id="prerecorded")
-    ]))
+    ])
 else
     request.queue(id="prerecorded")
 end
+prerecorded = audio_to_stereo(prerecorded)
 prerecorded = on_track(log_metadata, prerecorded)
 
 # use external script for remote live stream auth
