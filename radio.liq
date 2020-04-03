@@ -145,6 +145,8 @@ remote_live = input.harbor.ssl(id="remote_live", auth=remote_live_auth, replay_m
 # "johnny switch" provides our standard automation setup with automatic station
 # IDs, PSAs, etc. at set times
 radio = switch(id="johnny_switch", [
+    ({       true}, prerecorded),
+
     ({0h00m-00h59m and 0m-28m}, delay(1800., soo)),
     ({1h00m-23h59m and 0m-28m}, delay(1800., station_id)),
 
@@ -159,7 +161,6 @@ radio = switch(id="johnny_switch", [
 # fallback to different inputs in order
 radio = fallback(id="primary_input_fallback", track_sensitive=false, [
     remote_live,
-    prerecorded,
     radio,
     blank(id="safe_blank"),
 ])
