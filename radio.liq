@@ -2,38 +2,23 @@
 
 %include "config.liq"
 
-custom_reloaders = ref [("",fun(~uri="")->())]
-
-def reload_custom(name) =
-    def find_and_reload(x) =
-        if name == fst(x) then
-            reloader = snd(x)
-            reloader()
-        end
-    end
-
-    list.iter(find_and_reload, !custom_reloaders)
-    "OK"
-end
-server.register(description="Reload the specified custom playlist.",
-                usage="reload_custom <name>", "reload_custom", reload_custom)
-
-def load_playlist(name) =
-    s = playlist.reloadable(id="custom_#{name}",
-                            "#{base_path}/playlists/active/#{name}.m3u")
-    custom_reloaders := list.add((name, fst(s)), !custom_reloaders)
-    eat_blank(audio_to_stereo(snd(s)))
-end
-
 def underwriting_request() =
     result = list.hd(default="", get_process_lines(
         "curl -sL #{playlist_api_url}/underwriting"))
+    if result == "" then
+        log("Failed to fetch underwriting from API, delaying subsequent requests...")
+        system("sleep 900")
+    end
     request.create(result)
 end
 
 def next_track_request() =
     result = list.hd(default="", get_process_lines(
         "curl -sL #{playlist_api_url}/next_track"))
+    if result == "" then
+        log("Failed to fetch next track from API, delaying subsequent requests...")
+        system("sleep 2")
+    end
     request.create(result)
 end
 
@@ -43,7 +28,15 @@ def next_track_local_request() =
     request.create(result)
 end
 
-underwriting = eat_blank(audio_to_stereo(request.dynamic(id="underwriting", underwriting_request)))
+def prerecorded_request() =
+    result = list.hd(default="", get_process_lines(
+        "curl -sL #{playlist_api_url}/next_track?prerecorded=1"))
+    if result == "" then
+        log("Failed to fetch next prerecorded track from API, delaying subsequent requests...")
+        system("sleep 2")
+    end
+    request.create(result)
+end
 
 def load_traffic(~id="", path) =
     eat_blank(audio_to_stereo(playlist(id=id, mode="randomize", reload=14400, path)))
@@ -56,38 +49,102 @@ liner = load_traffic(id="lnr", "#{base_path}/playlists/lnr.m3u")
 promo = load_traffic(id="pro", "#{base_path}/playlists/pro.m3u")
 
 def log_metadata(m) =
-    log("Artist=#{m['artist']} Title=#{m['title']} Album=#{m['album']} Label=#{m['label']}")
+    log(
+        label="log_metadata",
+        "Artist=#{m['artist']} Title=#{m['title']} Album=#{m['album']} Label=#{m['label']} DJ=#{m['trackman_dj_id']}")
 
-    password = url.encode(trackman_password)
-    title = url.encode(m["title"])
-    artist = url.encode(m["artist"])
-    album = url.encode(m["album"])
-    label = url.encode(m["label"])
+    params = [
+        ("password", trackman_password),
+        ("artist", m['artist']),
+        ("title", m['title']),
+        ("album", m['album']),
+        ("label", m['label']),
+        ("dj_id", m['trackman_dj_id']),
+    ]
 
-    server = http.post(data="password=#{password}&title=#{title}&artist=#{artist}&album=#{album}&label=#{label}",
-                       headers=[("Content-Type", "application/x-www-form-urlencoded"),
-                                ("X-Requested-With", "johnny-six")],
-                       trackman_url)
-    http_status = snd(fst(fst(fst(server))))
+    def encode_param(p) =
+        let (k, v) = p
+        y = url.encode(v)
+        "#{k}=#{y}"
+    end
+    params = string.concat(separator="&", list.map(encode_param, params))
+    request_headers = [("Content-Type", "application/x-www-form-urlencoded"),
+                       ("X-Requested-With", "johnny-six")]
+
+    http_status =
+        if string.contains(prefix="https", trackman_url) then
+            let ((_,http_status,_),_,_) = https.post(
+                data=params,
+                headers=request_headers,
+                trackman_url)
+            http_status
+        else
+            let ((_,http_status,_),_,_) = http.post(
+                data=params,
+                headers=request_headers,
+                trackman_url)
+            http_status
+        end
+
     if http_status == 201 then
-        log("Track logged successfully")
+        log(label="log_metadata", "Track logged successfully")
     else
-        log("Failed to log track")
+        log(label="log_metadata",  "Failed to log track")
     end
 end
 
-tracks_api = request.dynamic(id="tracks", next_track_request)
-tracks_local = request.dynamic(id="tracks_local", next_track_local_request)
+# create underwriting queue - if API is disabled, just leave it empty
+underwriting = if playlist_api_url != "" then
+    eat_blank(audio_to_stereo(request.dynamic(id="underwriting", underwriting_request)))
+else
+    empty(id="underwriting")
+end
 
-radio = eat_blank(audio_to_stereo(fallback([tracks_api, tracks_local])))
+# build up the track queues; provide a local one and one that uses the API
+tracks_local = request.dynamic(id="tracks_local", next_track_local_request)
+tracks = if playlist_api_url != "" then
+    fallback([request.dynamic(id="tracks", next_track_request), tracks_local])
+else
+    tracks_local
+end
+
+# convert tracks to stereo, strip silence at beginning and ends of tracks, log
+# metadata on track change, and add liner every 4 tracks
+radio = eat_blank(audio_to_stereo(tracks))
 radio = on_track(log_metadata, radio)
 radio = rotate(weights=[4, 1], [radio, liner])
 
 # add an additional queue for prerecorded shows that logs everything
-prerecorded = eat_blank(audio_to_stereo(request.queue(id="prerecorded")))
+prerecorded = if playlist_api_url != "" then
+    fallback([
+        request.dynamic(id="prerecorded_api", prerecorded_request),
+        request.queue(id="prerecorded")
+    ])
+else
+    request.queue(id="prerecorded")
+end
+prerecorded = audio_to_stereo(prerecorded)
 prerecorded = on_track(log_metadata, prerecorded)
 
-radio = switch([
+# use external script for remote live stream auth
+def remote_live_auth(user, password) =
+    ret = get_process_lines("python3 #{script_path}/check_auth.py --user=#{user} --password=#{password}")
+    result = list.hd(default="", ret)
+    if result == "true" then
+        true
+    else
+        false
+    end
+end
+
+remote_live = input.harbor.ssl("remote_live", port=8005, auth=remote_live_auth)
+
+# add a harbor input for remote live streams
+remote_live = input.harbor.ssl(id="remote_live", auth=remote_live_auth, replay_metadata=true, "remote-live")
+
+# "johnny switch" provides our standard automation setup with automatic station
+# IDs, PSAs, etc. at set times
+radio = switch(id="johnny_switch", [
     ({       true}, prerecorded),
 
     ({0h00m-00h59m and 0m-28m}, delay(1800., soo)),
@@ -101,4 +158,9 @@ radio = switch([
     ({       true}, radio),
 ])
 
-radio = mksafe(radio)
+# fallback to different inputs in order
+radio = fallback(id="primary_input_fallback", track_sensitive=false, [
+    remote_live,
+    radio,
+    blank(id="safe_blank"),
+])
