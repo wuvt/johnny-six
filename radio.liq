@@ -137,8 +137,6 @@ def remote_live_auth(user, password) =
     end
 end
 
-remote_live = input.harbor.ssl("remote_live", port=8005, auth=remote_live_auth)
-
 # add a harbor input for remote live streams
 remote_live = input.harbor.ssl(id="remote_live", auth=remote_live_auth, replay_metadata=true, "remote-live")
 
