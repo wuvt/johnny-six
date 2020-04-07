@@ -6,7 +6,6 @@ def underwriting_request() =
     result = list.hd(default="", get_process_lines(
         "curl -sL #{playlist_api_url}/underwriting"))
     if result == "" then
-        log("Failed to fetch underwriting from API, delaying subsequent requests...")
         system("sleep 900")
     end
     request.create(result)
@@ -16,7 +15,6 @@ def next_track_request() =
     result = list.hd(default="", get_process_lines(
         "curl -sL #{playlist_api_url}/next_track"))
     if result == "" then
-        log("Failed to fetch next track from API, delaying subsequent requests...")
         system("sleep 2")
     end
     request.create(result)
@@ -32,7 +30,6 @@ def prerecorded_request() =
     result = list.hd(default="", get_process_lines(
         "curl -sL #{playlist_api_url}/next_track?prerecorded=1"))
     if result == "" then
-        log("Failed to fetch next prerecorded track from API, delaying subsequent requests...")
         system("sleep 2")
     end
     request.create(result)
