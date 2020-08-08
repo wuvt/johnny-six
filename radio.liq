@@ -7,8 +7,10 @@ def underwriting_request() =
         "curl -sL #{playlist_api_url}/underwriting"))
     if result == "" then
         system("sleep 900")
+        []
+    else
+        [request.create(result)]
     end
-    request.create(result)
 end
 
 def next_track_request() =
@@ -16,14 +18,16 @@ def next_track_request() =
         "curl -sL #{playlist_api_url}/next_track"))
     if result == "" then
         system("sleep 2")
+        []
+    else
+        [request.create(result)]
     end
-    request.create(result)
 end
 
 def next_track_local_request() =
     result = list.hd(default="", get_process_lines(
         "python3 #{script_path}/get_track.py #{base_path}"))
-    request.create(result)
+    [request.create(result)]
 end
 
 def prerecorded_request() =
@@ -31,8 +35,10 @@ def prerecorded_request() =
         "curl -sL #{playlist_api_url}/next_track?prerecorded=1"))
     if result == "" then
         system("sleep 2")
+        []
+    else
+        [request.create(result)]
     end
-    request.create(result)
 end
 
 def load_traffic(~id="", path) =
@@ -92,15 +98,15 @@ end
 
 # create underwriting queue - if API is disabled, just leave it empty
 underwriting = if playlist_api_url != "" then
-    eat_blank(audio_to_stereo(request.dynamic(id="underwriting", underwriting_request)))
+    eat_blank(audio_to_stereo(request.dynamic.list(id="underwriting", underwriting_request)))
 else
     empty(id="underwriting")
 end
 
 # build up the track queues; provide a local one and one that uses the API
-tracks_local = request.dynamic(id="tracks_local", next_track_local_request)
+tracks_local = request.dynamic.list(id="tracks_local", next_track_local_request)
 tracks = if playlist_api_url != "" then
-    fallback([request.dynamic(id="tracks", next_track_request), tracks_local])
+    fallback([request.dynamic.list(id="tracks", next_track_request), tracks_local])
 else
     tracks_local
 end
@@ -114,7 +120,7 @@ radio = rotate(weights=[4, 1], [radio, liner])
 # add an additional queue for prerecorded shows that logs everything
 prerecorded = if playlist_api_url != "" then
     fallback([
-        request.dynamic(id="prerecorded_api", prerecorded_request),
+        request.dynamic.list(id="prerecorded_api", prerecorded_request),
         request.queue(id="prerecorded")
     ])
 else

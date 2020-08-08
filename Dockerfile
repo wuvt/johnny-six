@@ -1,4 +1,4 @@
-FROM wuvt/liquidsoap:latest
+FROM wuvt/liquidsoap:v1.4.3-pre-release
 
 USER root
 
