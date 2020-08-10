@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Build and publish Docker image
+    - name: Build and push Docker image
       uses: docker/build-push-action@v1
       with:
         repository: wuvt/johnny-six
@@ -14,10 +14,12 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         tag_with_ref: true
         add_git_labels: true
-#    - name: Publish to GitHub Package Registry
-#      uses: elgohr/Publish-Docker-Github-Action@master
-#      with:
-#        name: wuvt/johnny-six/johnny-six
-#        username: wuvt
-#        password: ${{ secrets.GITHUB_TOKEN }}
-#        registry: docker.pkg.github.com
+    - name: Build and push Docker image to GitHub Package Registry
+      uses: docker/build-push-action@v1
+      with:
+        repository: wuvt/johnny-six/johnny-six
+        username: wuvt
+        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: docker.pkg.github.com
+        tag_with_ref: true
+        add_git_labels: true
