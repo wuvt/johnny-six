@@ -141,13 +141,16 @@ def remote_live_auth(user, password) =
 end
 
 # add a harbor input for remote live streams
-remote_live = input.harbor.ssl(id="remote_live", auth=remote_live_auth, replay_metadata=true, "remote-live")
+remote_live = input.harbor.ssl(
+    id="remote_live",
+    auth=remote_live_auth,
+    replay_metadata=true,
+    "remote-live"
+)
 
 # "johnny switch" provides our standard automation setup with automatic station
 # IDs, PSAs, etc. at set times
 radio = switch(id="johnny_switch", [
-    ({       true}, prerecorded),
-
     ({0h00m-00h59m and 0m-28m}, delay(1800., soo)),
     ({1h00m-23h59m and 0m-28m}, delay(1800., station_id)),
 
@@ -159,9 +162,28 @@ radio = switch(id="johnny_switch", [
     ({       true}, radio),
 ])
 
-# fallback to different inputs in order
-radio = fallback(id="primary_input_fallback", track_sensitive=false, [
-    remote_live,
-    radio,
-    blank(id="safe_blank"),
-])
+# Short, simple crossfade
+def transition(a, b)
+    add(
+        normalize=false,
+        [fade.in(duration=3., type="log", b),
+         fade.out(duration=3., type="log", a)],
+    )
+end
+
+# When a live stream connects or a track is added to the prerecorded queue,
+# immediately switch to it with a crossfade
+radio = fallback(
+    id="primary_input_fallback",
+    track_sensitive=false,
+    transitions=[transition, transition, transition],
+    [
+        remote_live,
+        prerecorded,
+        radio,
+    ],
+)
+
+# When all else fails, play silence (which will trigger an alarm later in the
+# airchain)
+radio = mksafe(radio)
