@@ -166,8 +166,8 @@ radio = switch(id="johnny_switch", [
 def transition(a, b)
     add(
         normalize=false,
-        [fade.in(duration=3., type="log", b),
-         fade.out(duration=3., type="log", a)],
+        [fade.initial(duration=5., b),
+         fade.final(duration=5., a)],
     )
 end
 
