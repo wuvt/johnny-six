@@ -133,7 +133,7 @@ end
 # convert tracks to stereo, strip silence at beginning and ends of tracks, log
 # metadata on track change, and add liner every 4 tracks
 radio = eat_blank(audio_to_stereo(tracks))
-radio = on_track(log_metadata, radio)
+radio = on_track(log_metadata_async, radio)
 radio = rotate(weights=[4, 1], [radio, liner])
 
 # add an additional queue for prerecorded shows that logs everything
