@@ -96,6 +96,25 @@ def log_metadata(m) =
     end
 end
 
+# Asynchronously log metadata
+#
+# When johnny-six was originally implemented, I missed a very important note
+# for on_track: "That function should be fast because it is executed in the
+# main streaming thread."
+# Wait, what? Oops!
+#
+# As of Liquidsoap 1.4.3, the only way to call a function asynchronously from
+# on_track is to use add_timeout to create a timeout, so that's exactly what we
+# do. To keep that function from being scheduled again, we return a negative
+# float.
+def log_metadata_async(m) =
+    def log_metadata_async_call()
+        log_metadata(m)
+        -1.
+    end
+    add_timeout(fast=false, 0.1, log_metadata_async_call)
+end
+
 # create underwriting queue - if API is disabled, just leave it empty
 underwriting = if playlist_api_url != "" then
     eat_blank(audio_to_stereo(request.dynamic.list(id="underwriting", underwriting_request)))
