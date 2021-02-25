@@ -187,12 +187,18 @@ def transition(a, b)
     )
 end
 
+# Fade the current track out and skip to the next source, skipping a track
+def transition_with_skip(a, b)
+    source.skip(b)
+    sequence([fade.final(duration=5., a), b])
+end
+
 # When a live stream connects or a track is added to the prerecorded queue,
 # immediately switch to it with a crossfade
 radio = fallback(
     id="primary_input_fallback",
     track_sensitive=false,
-    transitions=[transition, transition, transition],
+    transitions=[transition, transition, transition_with_skip],
     [
         remote_live,
         prerecorded,
