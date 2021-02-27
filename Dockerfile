@@ -1,4 +1,3 @@
-#FROM wuvt/liquidsoap:v1.4.3-pre-release.1
 FROM savonet/liquidsoap:v1.4.3
 
 USER root
