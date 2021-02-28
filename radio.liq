@@ -6,7 +6,6 @@ def underwriting_request() =
     result = list.hd(default="", get_process_lines(
         "curl -sL #{playlist_api_url}/underwriting"))
     if result == "" then
-        system("sleep 900")
         []
     else
         [request.create(result)]
@@ -17,7 +16,6 @@ def next_track_request() =
     result = list.hd(default="", get_process_lines(
         "curl -sL #{playlist_api_url}/next_track"))
     if result == "" then
-        system("sleep 2")
         []
     else
         [request.create(result)]
@@ -34,7 +32,6 @@ def prerecorded_request() =
     result = list.hd(default="", get_process_lines(
         "curl -sL #{playlist_api_url}/next_track?prerecorded=1"))
     if result == "" then
-        system("sleep 2")
         []
     else
         [request.create(result)]
@@ -117,7 +114,7 @@ end
 
 # create underwriting queue - if API is disabled, just leave it empty
 underwriting = if playlist_api_url != "" then
-    eat_blank(audio_to_stereo(request.dynamic.list(id="underwriting", underwriting_request)))
+    eat_blank(audio_to_stereo(request.dynamic.list(id="underwriting", retry_delay=900., underwriting_request)))
 else
     empty(id="underwriting")
 end
@@ -125,7 +122,7 @@ end
 # build up the track queues; provide a local one and one that uses the API
 tracks_local = request.dynamic.list(id="tracks_local", next_track_local_request)
 tracks = if playlist_api_url != "" then
-    fallback([request.dynamic.list(id="tracks", next_track_request), tracks_local])
+    fallback([request.dynamic.list(id="tracks", retry_delay=2., next_track_request), tracks_local])
 else
     tracks_local
 end
@@ -139,7 +136,7 @@ radio = rotate(weights=[4, 1], [radio, liner])
 # add an additional queue for prerecorded shows that logs everything
 prerecorded = if playlist_api_url != "" then
     fallback([
-        request.dynamic.list(id="prerecorded_api", prerecorded_request),
+        request.dynamic.list(id="prerecorded_api", retry_delay=2., prerecorded_request),
         request.queue(id="prerecorded")
     ])
 else
