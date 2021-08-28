@@ -47,6 +47,7 @@ psa = load_traffic(id="psa", "#{base_path}/playlists/psa.m3u")
 soo = load_traffic(id="soo", "#{base_path}/playlists/soo.m3u")
 liner = load_traffic(id="lnr", "#{base_path}/playlists/lnr.m3u")
 promo = load_traffic(id="pro", "#{base_path}/playlists/pro.m3u")
+tracks_backup = load_traffic(id="tracks_backup", "#{base_path}/playlists/default/backup.m3u")
 
 def log_metadata(m) =
     log(
@@ -122,9 +123,9 @@ end
 # build up the track queues; provide a local one and one that uses the API
 tracks_local = request.dynamic.list(id="tracks_local", next_track_local_request)
 tracks = if playlist_api_url != "" then
-    fallback([request.dynamic.list(id="tracks", retry_delay=2., next_track_request), tracks_local])
+    fallback([request.dynamic.list(id="tracks", retry_delay=2., next_track_request), tracks_local, tracks_backup])
 else
-    tracks_local
+    fallback([tracks_local, tracks_backup])
 end
 
 # convert tracks to stereo, strip silence at beginning and ends of tracks, log

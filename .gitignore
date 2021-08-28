@@ -4,3 +4,5 @@
 .DS_Store
 config.liq
 auth.txt
+/tools/rewrite-playlist/rewrite-playlist
+/tools/rewrite-playlist/rewrite-playlist.exe
