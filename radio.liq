@@ -4,7 +4,7 @@
 
 def underwriting_request() =
     result = list.hd(default="", get_process_lines(
-        "curl -sL #{playlist_api_url}/underwriting"))
+        "curl -fsL #{playlist_api_url}/underwriting"))
     if result == "" then
         []
     else
@@ -14,7 +14,7 @@ end
 
 def next_track_request() =
     result = list.hd(default="", get_process_lines(
-        "curl -sL #{playlist_api_url}/next_track"))
+        "curl -fsL #{playlist_api_url}/next_track"))
     if result == "" then
         []
     else
@@ -30,7 +30,7 @@ end
 
 def prerecorded_request() =
     result = list.hd(default="", get_process_lines(
-        "curl -sL #{playlist_api_url}/next_track?prerecorded=1"))
+        "curl -fsL #{playlist_api_url}/next_track?prerecorded=1"))
     if result == "" then
         []
     else
