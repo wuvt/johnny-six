@@ -19,4 +19,4 @@ RUN sed -i 's/server\.socket",/server.telnet",/' wuvt.liq \
 
 USER daemon
 
-CMD ["liquidsoap", "/usr/src/app/wuvt.liq"]
+CMD ["/usr/src/app/wuvt.liq"]
