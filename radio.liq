@@ -2,15 +2,16 @@
 
 %include "config.liq"
 
-def underwriting_request() =
-    result = list.hd(default="", get_process_lines(
-        "curl -fsL #{playlist_api_url}/underwriting"))
-    if result == "" then
-        []
-    else
-        [request.create(result)]
-    end
-end
+# UNDERWRITING API not implemented
+#def underwriting_request() =
+#    result = list.hd(default="", get_process_lines(
+#        "curl -fsL #{playlist_api_url}/underwriting"))
+#    if result == "" then
+#        []
+#    else
+#        [request.create(result)]
+#    end
+#end
 
 def next_track_request() =
     result = list.hd(default="", get_process_lines(
@@ -114,11 +115,13 @@ def log_metadata_async(m) =
 end
 
 # create underwriting queue - if API is disabled, just leave it empty
-underwriting = if playlist_api_url != "" then
-    eat_blank(audio_to_stereo(request.dynamic.list(id="underwriting", retry_delay=900., underwriting_request)))
-else
-    empty(id="underwriting")
-end
+#underwriting = if playlist_api_url != "" then
+#    eat_blank(audio_to_stereo(request.dynamic.list(id="underwriting", retry_delay=900., underwriting_request)))
+#else
+#    empty(id="underwriting")
+#end
+
+underwriting = empty(id="underwriting")
 
 # build up the track queues; provide a local one and one that uses the API
 tracks_local = request.dynamic.list(id="tracks_local", next_track_local_request)
