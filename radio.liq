@@ -121,7 +121,7 @@ end
 #    empty(id="underwriting")
 #end
 
-underwriting = empty(id="underwriting")
+underwriting = request.queue(id="underwriting")
 
 # build up the track queues; provide a local one and one that uses the API
 tracks_local = request.dynamic.list(id="tracks_local", next_track_local_request)
