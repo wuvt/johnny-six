@@ -10,7 +10,7 @@ RUN usermod -aG audio daemon \
         && install -d -m 0755 -o daemon -g daemon /opt/johnny-six \
         && usermod -d /opt/johnny-six daemon
 
-COPY get_track.py radio.liq wuvt.liq /usr/src/app/
+COPY get_track.py radio.liq wuvt.liq check_auth.py /usr/src/app/
 COPY config_docker.liq /usr/src/app/config.liq
 
 WORKDIR /usr/src/app
