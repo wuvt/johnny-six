@@ -76,6 +76,7 @@ def log_metadata(m) =
     let http_response = http.post(
         data=params,
         headers=request_headers,
+        normalize_url=true,
         trackman_url)
 
     if http_response.status_code == 201 then
