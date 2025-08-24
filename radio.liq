@@ -14,7 +14,7 @@
 #end
 
 def next_track_request() =
-    result = list.hd(default="", get_process_lines(
+    result = list.hd(default="", process.read.lines(
         "curl -fsL #{playlist_api_url}/next_track"))
     if result == "" then
         []
@@ -24,13 +24,13 @@ def next_track_request() =
 end
 
 def next_track_local_request() =
-    result = list.hd(default="", get_process_lines(
+    result = list.hd(default="", process.read.lines(
         "python3 #{script_path}/get_track.py #{base_path}"))
     [request.create(result)]
 end
 
 def prerecorded_request() =
-    result = list.hd(default="", get_process_lines(
+    result = list.hd(default="", process.read.lines(
         "curl -fsL #{playlist_api_url}/next_track?prerecorded=1"))
     if result == "" then
         []
@@ -73,22 +73,12 @@ def log_metadata(m) =
     request_headers = [("Content-Type", "application/x-www-form-urlencoded"),
                        ("X-Requested-With", "johnny-six")]
 
-    http_status =
-        if string.contains(prefix="https", trackman_url) then
-            let ((_,http_status,_),_,_) = https.post(
-                data=params,
-                headers=request_headers,
-                trackman_url)
-            http_status
-        else
-            let ((_,http_status,_),_,_) = http.post(
-                data=params,
-                headers=request_headers,
-                trackman_url)
-            http_status
-        end
+    let http_response = http.post(
+        data=params,
+        headers=request_headers,
+        trackman_url)
 
-    if http_status == 201 then
+    if http_response.status_code == 201 then
         log(label="log_metadata", "Track logged successfully")
     else
         log(label="log_metadata",  "Failed to log track")
@@ -111,7 +101,7 @@ def log_metadata_async(m) =
         log_metadata(m)
         -1.
     end
-    add_timeout(fast=false, 0.1, log_metadata_async_call)
+    thread.run.recurrent(fast=false, delay=0.1, log_metadata_async_call)
 end
 
 # create underwriting queue - if API is disabled, just leave it empty
@@ -133,8 +123,8 @@ end
 
 # convert tracks to stereo, strip silence at beginning and ends of tracks, log
 # metadata on track change, and add liner every 4 tracks
-radio = eat_blank(audio_to_stereo(tracks))
-radio = on_track(log_metadata_async, radio)
+radio = blank.eat(tracks)
+radio.on_track(log_metadata_async)
 radio = rotate(weights=[4, 1], [radio, liner])
 
 # add an additional queue for prerecorded shows that logs everything
@@ -146,12 +136,11 @@ prerecorded = if playlist_api_url != "" then
 else
     request.queue(id="prerecorded")
 end
-prerecorded = audio_to_stereo(prerecorded)
-prerecorded = on_track(log_metadata, prerecorded)
+prerecorded.on_track(log_metadata)
 
 # use external script for remote live stream auth
-def remote_live_auth(user, password) =
-    ret = get_process_lines("python3 #{script_path}/check_auth.py --user=#{user} --password=#{password}")
+def remote_live_auth(args) =
+    ret = get_process_lines("python3 #{script_path}/check_auth.py --user=#{args.user} --password=#{args.password}")
     result = list.hd(default="", ret)
     if result == "true" then
         true
@@ -161,7 +150,7 @@ def remote_live_auth(user, password) =
 end
 
 # add a harbor input for remote live streams
-remote_live = input.harbor.ssl(
+remote_live = input.harbor(
     id="remote_live",
     auth=remote_live_auth,
     replay_metadata=true,

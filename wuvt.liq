@@ -11,7 +11,7 @@ set("scheduler.generic_queues", 6)
 
 %include "radio.liq"
 
-alsa_output = getenv("ALSA_OUTPUT")
+alsa_output = environment.get("ALSA_OUTPUT")
 if alsa_output == "" then
     output.pulseaudio(radio)
 else
