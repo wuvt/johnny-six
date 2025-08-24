@@ -40,7 +40,7 @@ def prerecorded_request() =
 end
 
 def load_traffic(~id="", path) =
-    eat_blank(audio_to_stereo(playlist(id=id, mode="randomize", reload=14400, path)))
+    blank.eat(playlist(id=id, mode="randomize", reload=14400, path))
 end
 
 station_id = load_traffic(id="id", "#{base_path}/playlists/id.m3u")

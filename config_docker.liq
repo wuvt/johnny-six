@@ -1,6 +1,3 @@
-set("harbor.ssl.certificate", "/etc/harbor/cert.pem")
-set("harbor.ssl.private_key", "/etc/harbor/privkey.pem")
-
 script_path = "/usr/src/app"
 base_path = environment.get("BASE_PATH")
 trackman_url = environment.get("TRACKMAN_URL")
