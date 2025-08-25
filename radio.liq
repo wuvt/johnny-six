@@ -81,7 +81,7 @@ def log_metadata(m) =
     if http_response.status_code == 201 then
         log(label="log_metadata", "Track logged successfully")
     else
-        log(label="log_metadata",  "Failed to log track")
+        log(label="log_metadata",  "Failed to log track #{http_response}")
     end
 end
 
