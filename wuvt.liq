@@ -1,17 +1,17 @@
 # WUVT Automation
 
-set("log.file", false)
-set("log.stdout", true)
+settings.log.file := false
+settings.log.stdout := true
 
-set("server.socket", true)
-set("server.socket.path", "/tmp/liquidsoap.sock")
+settings.server.socket := true
+settings.server.socket.path := "/tmp/liquidsoap.sock"
 
-set("scheduler.fast_queues", 1)
-set("scheduler.generic_queues", 6)
+settings.scheduler.fast_queues := 1
+settings.scheduler.generic_queues := 6
 
 %include "radio.liq"
 
-alsa_output = getenv("ALSA_OUTPUT")
+alsa_output = environment.get("ALSA_OUTPUT")
 if alsa_output == "" then
     output.pulseaudio(radio)
 else

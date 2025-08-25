@@ -1,11 +1,9 @@
-FROM savonet/liquidsoap:v1.4.4
+FROM savonet/liquidsoap:v2.3.3
 
 USER root
 
-RUN sed -i 's/testing/bullseye/g' /etc/apt/sources.list \
-        && apt-get update \
-        && apt-get -y install python3 python3-requests \
-        && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+        && apt-get -y install python3 python3-requests
 RUN usermod -aG audio daemon \
         && install -d -m 0755 -o daemon -g daemon /opt/johnny-six \
         && usermod -d /opt/johnny-six daemon

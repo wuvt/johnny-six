@@ -1,14 +1,11 @@
-set("log.file.path", "/tmp/liquidsoap.log")
-set("log.stdout", true)
+settings.log.file.path := "/tmp/liquidsoap.log"
+settings.log.stdout := true
 
-set("server.socket", true)
-set("server.socket.path", "/tmp/liquidsoap.sock")
+settings.server.socket := true
+settings.server.socket.path := "/tmp/liquidsoap.sock"
 
-set("scheduler.fast_queues", 1)
-set("scheduler.generic_queues", 6)
-
-set("harbor.ssl.certificate", "/etc/harbor/cert.pem")
-set("harbor.ssl.private_key", "/etc/harbor/privkey.pem")
+settings.scheduler.fast_queues := 1
+settings.scheduler.generic_queues := 6
 
 script_path = "/opt/johnny-six"
 base_path = "/opt/wuvt/automation"
