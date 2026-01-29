@@ -5,7 +5,7 @@
 # UNDERWRITING API not implemented
 #def underwriting_request() =
 #    result = list.hd(default="", get_process_lines(
-#        "curl -fsL #{playlist_api_url}/underwriting"))
+#        "curl --max-time 10 -fsL #{playlist_api_url}/underwriting"))
 #    if result == "" then
 #        []
 #    else
@@ -15,10 +15,12 @@
 
 def next_track_request() =
     result = list.hd(default="", process.read.lines(
-        "curl -fsL #{playlist_api_url}/next_track"))
+        "curl --max-time 10 -fsL #{playlist_api_url}/next_track"))
     if result == "" then
+        log(label="next_track_request", "request returned contentless or timed out")
         []
     else
+        log(label="next_track_request", "#{result}")
         [request.create(result)]
     end
 end
@@ -31,10 +33,12 @@ end
 
 def prerecorded_request() =
     result = list.hd(default="", process.read.lines(
-        "curl -fsL #{playlist_api_url}/next_track?prerecorded=1"))
+        "curl --max-time 10 -fsL #{playlist_api_url}/next_track?prerecorded=1"))
     if result == "" then
+        log(label="prerecorded_request", "request returned contentless or timed out")
         []
     else
+        log(label="prerecorded_request", "#{result}")
         [request.create(result)]
     end
 end
