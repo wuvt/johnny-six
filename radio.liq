@@ -1,5 +1,8 @@
 # WUVT Automation
 
+# Fallback order: Prerecorded queue -> Automation queue
+# -> Remote playlists -> Offline local playlists
+
 %include "config.liq"
 
 # UNDERWRITING API not implemented
@@ -13,24 +16,7 @@
 #    end
 #end
 
-def next_track_request() =
-    result = list.hd(default="", process.read.lines(
-        "curl --max-time 10 -fsL #{playlist_api_url}/next_track"))
-    if result == "" then
-        log(label="next_track_request", "request returned contentless or timed out")
-        []
-    else
-        log(label="next_track_request", "#{result}")
-        [request.create(result)]
-    end
-end
-
-def next_track_local_request() =
-    result = list.hd(default="", process.read.lines(
-        "python3 #{script_path}/get_track.py #{base_path}"))
-    [request.create(result)]
-end
-
+# Prerecorded queue (normally fed from pload scheduled DJ shows)
 def prerecorded_request() =
     result = list.hd(default="", process.read.lines(
         "curl --max-time 10 -fsL #{playlist_api_url}/next_track?prerecorded=1"))
@@ -43,6 +29,37 @@ def prerecorded_request() =
     end
 end
 
+# Automation queue (normally fed from pload scheduled automation shows [rare
+# used])
+def next_track_request() =
+    result = list.hd(default="", process.read.lines(
+        "curl --max-time 10 -fsL #{playlist_api_url}/next_track"))
+    if result == "" then
+        log(label="next_track_request", "request returned contentless or timed out")
+        []
+    else
+        log(label="next_track_request", "#{result}")
+        [request.create(result)]
+    end
+end
+
+# Remote playlists (normally base_path is a file server that host
+# both the playlists mp3u files and the audio files for the songs)
+def next_track_remote_request() =
+    result = list.hd(default="", process.read.lines(
+        "python3 #{script_path}/get_track.py #{base_path}"))
+    [request.create(result)]
+end
+
+# Offline local playlists (normally local_path is a local directory with both
+# the playlists mp3u files and the audio files for the songs)
+def next_track_local_request() =
+    result = list.hd(default="", process.read.lines(
+        "python3 #{script_path}/get_track.py #{local_path}"))
+    [request.create(result)]
+end
+
+
 def load_traffic(~id="", path) =
     blank.eat(playlist(id=id, mode="randomize", reload=14400, path))
 end
@@ -53,6 +70,13 @@ soo = load_traffic(id="soo", "#{base_path}/playlists/soo.m3u")
 liner = load_traffic(id="lnr", "#{base_path}/playlists/lnr.m3u")
 promo = load_traffic(id="pro", "#{base_path}/playlists/pro.m3u")
 tracks_backup = load_traffic(id="tracks_backup", "#{base_path}/playlists/default/backup.m3u")
+
+local_station_id = load_traffic(id="id", "#{local_path}/playlists/id.m3u")
+local_psa = load_traffic(id="psa", "#{local_path}/playlists/psa.m3u")
+local_soo = load_traffic(id="soo", "#{local_path}/playlists/soo.m3u")
+local_liner = load_traffic(id="lnr", "#{local_path}/playlists/lnr.m3u")
+local_promo = load_traffic(id="pro", "#{local_path}/playlists/pro.m3u")
+local_tracks_backup = load_traffic(id="tracks_backup", "#{local_path}/playlists/default/backup.m3u")
 
 def log_metadata(m) =
     log(
@@ -117,12 +141,13 @@ end
 
 underwriting = request.queue(id="underwriting")
 
-# build up the track queues; provide a local one and one that uses the API
+# build up the track queues; provide a remote and a local one and one that uses the API
+tracks_remote = request.dynamic.list(id="tracks_remote", next_track_remote_request)
 tracks_local = request.dynamic.list(id="tracks_local", next_track_local_request)
 tracks = if playlist_api_url != "" then
-    fallback([request.dynamic.list(id="tracks", retry_delay=2., next_track_request), tracks_local, tracks_backup])
+    fallback([request.dynamic.list(id="tracks", retry_delay=2., next_track_request), tracks_remote, tracks_local, tracks_backup])
 else
-    fallback([tracks_local, tracks_backup])
+    fallback([tracks_remote, tracks_local, tracks_backup])
 end
 
 # convert tracks to stereo, strip silence at beginning and ends of tracks, log

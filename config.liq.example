@@ -8,7 +8,8 @@ settings.scheduler.fast_queues := 1
 settings.scheduler.generic_queues := 6
 
 script_path = "/opt/johnny-six"
-base_path = "/opt/wuvt/automation"
+base_path = "http://localhost:8000/"
+local_path = "/opt/wuvt/automation"
 trackman_url = "http://localhost:9090/trackman/api/automation/log"
 trackman_password = "hackme"
 playlist_api_url = ""
