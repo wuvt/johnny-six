@@ -44,15 +44,18 @@ if path[0] == '/':
     with open(path) as f:
         lines = f.read().splitlines()
 else:
-    r = requests.get(path)
-    if r.status_code != 200:
-        path = os.path.join(args.base_path, 'playlists/default/backup.m3u')
+    try:
         r = requests.get(path)
+        if r.status_code != 200:
+            path = os.path.join(args.base_path, 'playlists/default/backup.m3u')
+            r = requests.get(path)
 
-    if r.status_code == 200:
-        lines = r.text.splitlines()
-    else:
-        raise FileNotFoundError(path)
+        if r.status_code == 200:
+            lines = r.text.splitlines()
+        else:
+            raise FileNotFoundError(path)
+    except Exception as e:
+        print("error:", e)
 
 # always send output to liquidsoap as UTF-8, regardless of terminal encoding
 sys.stdout.buffer.write(random.choice(lines).encode('utf-8') + b'\n')
