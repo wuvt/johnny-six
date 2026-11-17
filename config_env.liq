@@ -1,4 +1,4 @@
-script_path = "/usr/src/app"
+script_path = environment.get("SCRIPT_PATH")
 base_path = environment.get("BASE_PATH")
 trackman_url = environment.get("TRACKMAN_URL")
 trackman_password = environment.get("TRACKMAN_PASSWORD")
