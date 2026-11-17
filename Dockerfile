@@ -3,7 +3,7 @@ FROM savonet/liquidsoap:v2.4.4
 USER root
 
 RUN apt-get update \
-        && apt-get -y install python3 python3-requests curl
+        && apt-get -y install python3 python3-requests python3-crypt-r curl
 RUN usermod -aG audio daemon \
         && install -d -m 0755 -o daemon -g daemon /opt/johnny-six \
         && usermod -d /opt/johnny-six daemon

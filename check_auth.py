@@ -1,7 +1,11 @@
 #!/usr/bin/python3
 
 import argparse
-import crypt
+try:
+    import crypt
+except ImportError:
+    # crypt was removed from the standard library in Python 3.13 (PEP 594)
+    import crypt_r as crypt
 from hmac import compare_digest
 
 
