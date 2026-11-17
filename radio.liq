@@ -128,7 +128,7 @@ end
 # convert tracks to stereo, strip silence at beginning and ends of tracks, log
 # metadata on track change, and add liner every 4 tracks
 radio = blank.eat(tracks)
-radio.on_track(log_metadata_async)
+radio.on_track(synchronous=true, log_metadata_async)
 radio = rotate(weights=[4, 1], [radio, liner])
 
 # add an additional queue for prerecorded shows that logs everything
@@ -140,7 +140,7 @@ prerecorded = if playlist_api_url != "" then
 else
     request.queue(id="prerecorded")
 end
-prerecorded.on_track(log_metadata)
+prerecorded.on_track(synchronous=true, log_metadata)
 
 # use external script for remote live stream auth
 def remote_live_auth(args) =
