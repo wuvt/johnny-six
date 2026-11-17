@@ -143,23 +143,23 @@ end
 prerecorded.on_track(synchronous=true, log_metadata)
 
 # use external script for remote live stream auth
-def remote_live_auth(args) =
-    ret = get_process_lines("python3 #{script_path}/check_auth.py --user=#{args.user} --password=#{args.password}")
-    result = list.hd(default="", ret)
-    if result == "true" then
-        true
-    else
-        false
-    end
-end
+# def remote_live_auth(args) =
+#     ret = get_process_lines("python3 #{script_path}/check_auth.py --user=#{args.user} --password=#{args.password}")
+#     result = list.hd(default="", ret)
+#     if result == "true" then
+#         true
+#     else
+#         false
+#     end
+# end
 
 # add a harbor input for remote live streams
-remote_live = input.harbor(
-    id="remote_live",
-    auth=remote_live_auth,
-    replay_metadata=true,
-    "remote-live"
-)
+# remote_live = input.harbor(
+#     id="remote_live",
+#     auth=remote_live_auth,
+#     replay_metadata=true,
+#     "remote-live"
+# )
 
 # "johnny switch" provides our standard automation setup with automatic station
 # IDs, PSAs, etc. at set times
@@ -195,9 +195,10 @@ end
 radio = fallback(
     id="primary_input_fallback",
     track_sensitive=false,
-    transitions=[transition, transition, transition_with_skip],
+    # transitions=[transition, transition, transition_with_skip],
+    transitions=[transition, transition_with_skip],
     [
-        remote_live,
+        # remote_live,
         prerecorded,
         radio,
     ],
